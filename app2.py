@@ -141,7 +141,7 @@ def main():
         data = load_data(uploaded_file)
 
         # 讓使用者選擇分析的「項目」
-        item_options = data['項目'].unique().tolis數據t()  # 動態取得項目選項
+        item_options = data['項目'].unique().tolist()  # 動態取得項目選項
         selected_items = st.multiselect("請選擇要分析的項目：", item_options, default=[item_options[0]])
 
         # 讓使用者選擇分析的列欄位（如 C1、D1 等）
@@ -166,4 +166,5 @@ def main():
         st.write("請上傳 Excel 檔案以進行分析。")
 
 if __name__ == "__main__":
+
     main()
