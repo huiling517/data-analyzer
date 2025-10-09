@@ -3,4 +3,5 @@ matplotlib==3.10.3
 seaborn==0.13.2
 streamlit==1.46.1
 openpyxl==3.1.5
-matplotlib-chinese # <-- 新增這一行
+matplotlib-chinese
+
