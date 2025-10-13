@@ -4,4 +4,4 @@ seaborn==0.13.2
 streamlit==1.46.1
 openpyxl==3.1.5
 matplotlib-chinese
-Pillow==11.2.1  #
+Pillow==11.2.1
