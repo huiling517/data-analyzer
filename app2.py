@@ -23,7 +23,7 @@ if os.path.exists(font_path):
         fm.fontManager.addfont(font_path)
         rcParams['font.family'] = [font_name_for_matplotlib, 'sans-serif']
         # 在 Streamlit 界面顯示成功訊息，方便部署後確認
-        st.success(f"成功載入字體: {font_name_for_matplotlib}。")
+        #st.success(f"成功載入字體: {font_name_for_matplotlib}。")
     except Exception as e:
         # 如果載入字體時發生錯誤，則回退到通用字體並顯示錯誤訊息
         st.error(f"從 {font_path} 載入字體時發生錯誤: {e}。")
@@ -229,3 +229,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+
