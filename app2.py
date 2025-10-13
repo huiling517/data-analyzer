@@ -1,3 +1,4 @@
+
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
@@ -9,27 +10,28 @@ import matplotlib.font_manager as fm # 導入 font_manager 模組
 
 # --- 設置 Matplotlib 字型為支持中文的字型 ---
 # 1. 指定字體檔案的路徑
-# os.path.dirname(__file__) 會得到 app2.py 所在的目錄
-# os.path.join 則會組合路徑，確保跨平台兼容
-# 請確認 'NotoSansCJKtc-Regular.ttf' 與您實際下載並上傳到 'fonts' 資料夾中的檔案名稱完全一致！
-font_file_name = 'NotoSansCJKtc-Regular.ttf'
+# 根據您提供的截圖，字體檔案名稱為 'NotoSansTC-Regular.ttf'
+font_file_name = 'NotoSansTC-Regular.ttf'
 font_path = os.path.join(os.path.dirname(__file__), 'fonts', font_file_name)
 
 # 2. 檢查字體檔案是否存在，並添加到 Matplotlib 的字體管理器中
-# 推薦的字體名稱 'Noto Sans CJK TC' 已經透過您的預覽確認過
-font_name_for_matplotlib = 'Noto Sans CJK TC'
+# 根據您提供的預覽，字體的顯示名稱為 'Noto Sans TC'
+font_name_for_matplotlib = 'Noto Sans TC'
 
 if os.path.exists(font_path):
     try:
         fm.fontManager.addfont(font_path)
         rcParams['font.family'] = [font_name_for_matplotlib, 'sans-serif']
-        st.success(f"Successfully loaded font: {font_name_for_matplotlib}")
+        # 在 Streamlit 界面顯示成功訊息，方便部署後確認
+        st.success(f"成功載入字體: {font_name_for_matplotlib}。")
     except Exception as e:
-        st.error(f"Error loading font from {font_path}: {e}")
-        st.warning("Using fallback font as font loading failed.")
+        # 如果載入字體時發生錯誤，則回退到通用字體並顯示錯誤訊息
+        st.error(f"從 {font_path} 載入字體時發生錯誤: {e}。")
+        st.warning("字體載入失敗，使用備用字體。")
         rcParams['font.family'] = ['Arial Unicode MS', 'sans-serif'] # 回退到通用字體
 else:
-    st.warning(f"Warning: Chinese font file '{font_file_name}' not found at {font_path}. Using fallback font.")
+    # 如果字體檔案不存在，則回退到通用字體並顯示警告訊息
+    st.warning(f"警告: 中文字體檔案 '{font_file_name}' 未在 '{os.path.join('fonts', font_file_name)}' 找到。使用備用字體。")
     rcParams['font.family'] = ['Arial Unicode MS', 'sans-serif'] # 回退到通用字體
 
 # 確保負號 '-' 正常顯示，避免中文環境下顯示為方塊
@@ -227,4 +229,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
