@@ -47,12 +47,16 @@ def load_data(uploaded_file):
 
 # 2. 資料處理：篩選出年月和指定欄位
 def process_data(data, selected_items, selected_column):
-    # 篩選出符合選定項目的資料
+    # 篩選出符合選定項目的資料，並建立副本
     filtered_data = data[data['項目'].isin(selected_items)].copy()
+
+    # 確保 '年月' 欄位為字串格式
+    filtered_data['年月'] = filtered_data['年月'].astype(str)
+
     # 提取年份和月份
-    filtered_data['年月'] = filtered_data['年月'].astype(str)  # 確保年月為字串格式
     filtered_data['年份'] = filtered_data['年月'].str[:3]  # 提取前三位作為年份
     filtered_data['月份'] = filtered_data['年月'].str[3:].astype(int)  # 提取後兩位作為月份
+
     # 只保留必要欄位
     filtered_data = filtered_data[['項目', '年份', '月份', selected_column]]
     filtered_data = filtered_data.sort_values(['項目', '年份', '月份'])  # 按項目、年份和月份排序
@@ -70,10 +74,10 @@ def plot_data(data, selected_items, selected_column, separate_by_year, combine_p
             plt.xticks(range(1, 13))  # 確保 X 軸只顯示 1 到 12 月
         else:  # 否則繪製整體趨勢
             for item in selected_items:
-                # 篩選出對應項目的數據
-                item_data = data[data['項目'] == item]
+                # 篩選出對應項目的數據，並建立副本
+                item_data = data[data['項目'] == item].copy()
                 item_data['年月'] = item_data['年份'] + item_data['月份'].astype(str).str.zfill(2)  # 合併年份和月份
-                sns.lineplot(x='年月', y=selected_column, data=item_data, marker='o', label=item)  # 傳遞項目的名稱
+                sns.lineplot(x='年月', y=selected_column, data=item_data, marker='o', label=item)
             plt.xlabel("年月", fontsize=12)
             plt.xticks(rotation=45)
 
@@ -97,7 +101,7 @@ def plot_data(data, selected_items, selected_column, separate_by_year, combine_p
     else:  # 每個項目分別畫在不同的圖中
         for item in selected_items:
             plt.figure(figsize=(12, 6))
-            item_data = data[data['項目'] == item]
+            item_data = data[data['項目'] == item].copy()
             if separate_by_year:  # 按年度分開繪製
                 for year in item_data['年份'].unique():
                     year_data = item_data[item_data['年份'] == year]
@@ -106,7 +110,7 @@ def plot_data(data, selected_items, selected_column, separate_by_year, combine_p
                 plt.xticks(range(1, 13))
             else:  # 整體趨勢
                 item_data['年月'] = item_data['年份'] + item_data['月份'].astype(str).str.zfill(2)
-                sns.lineplot(x='年月', y=selected_column, data=item_data, marker='o', label=item)  # 傳遞項目的名稱
+                sns.lineplot(x='年月', y=selected_column, data=item_data, marker='o', label=item)
                 plt.xlabel("年月", fontsize=12)
                 plt.xticks(rotation=45)
 
