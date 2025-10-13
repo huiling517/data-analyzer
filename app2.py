@@ -4,14 +4,21 @@ import seaborn as sns
 import streamlit as st
 from matplotlib.ticker import ScalarFormatter  # 用於格式化數字
 from matplotlib import rcParams  # 用於設置全局字型
-import matplotlib_chinese # <-- 新增這一行，用於自動配置中文字體
+import os
 
-# 設置 Matplotlib 字型為支持中文的字型 (透過 matplotlib_chinese 自動處理)
+# 設置 Matplotlib 字型為支持中文的字型
 # 解決在使用中文字體時，負號可能顯示為方塊的問題
 rcParams['axes.unicode_minus'] = False
 
+# 嘗試設置中文字型
+def set_chinese_font():
+    try:
+        # 檢查是否有常用的中文字型
+        rcParams['font.family'] = ['Microsoft YaHei', 'SimHei', 'Taipei Sans TC Beta', 'Noto Sans CJK TC']
+    except Exception as e:
+        st.warning(f"中文字型設置失敗，請確認是否有可用的中文字型。錯誤：{e}")
 
-# 自訂 CSS 讓頁面靠左對齊並縮小段落間距
+# 設置 Streamlit 頁面樣式
 def set_page_style():
     st.markdown(
         """
@@ -130,14 +137,12 @@ def plot_data(data, selected_items, selected_column, separate_by_year, combine_p
 
 # 4. Streamlit App 主程式
 def main():
-    set_page_style()  # 設置頁面樣式
+    # 設置頁面樣式和字型
+    set_page_style()
+    set_chinese_font()
 
     st.title("數據分析工具")
-    st.write("1. 上傳一個 Excel 檔案，並選擇一個或多個項目和欄位，分析其在不同月份或年度的趨勢變化")
-    st.write("2. 欄位規則：A欄為年月，A1請填入文字:年月；B欄為分析項目，B1請填入文字:分析項目；C欄以後請自行定義名稱")
-    st.write("3. A欄為年月，A1之後欄位請填入文字，例如114年5月，請填入文字:11405")
-    st.write("4. B欄為分析項目，A2之後欄位請填入文字，例如：醫療收入或人事費用...")
-    st.write("5. C2往右及往下儲存格為數值資料")
+    st.write("請上傳 Excel 檔案進行分析...")
 
     # 讓使用者上傳 Excel 檔案
     uploaded_file = st.file_uploader("上傳 Excel 檔案", type=["xlsx"], label_visibility="hidden")
