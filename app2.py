@@ -1,16 +1,40 @@
 
+--- START OF FILE app2.py ---
+
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
 import streamlit as st
 from matplotlib.ticker import ScalarFormatter  # 用於格式化數字
 from matplotlib import rcParams  # 用於設置全局字型
+import os # 導入 os 模組用於路徑操作
+import matplotlib.font_manager as fm # 導入 font_manager 模組
 
-# 設置 Matplotlib 字型為支持中文的字型
-# 部署到 Streamlit Cloud 時，建議使用跨平台或 Linux 環境中常見的字體
-# 'Arial Unicode MS' 是一個常見的多語言支持字體。
-# 'sans-serif' 作為備用，讓 Matplotlib 自動選擇一個無襯線字體。
-rcParams['font.family'] = ['Arial Unicode MS', 'sans-serif']
+# --- 設置 Matplotlib 字型為支持中文的字型 ---
+# 1. 指定字體檔案的路徑
+# os.path.dirname(__file__) 會得到 app2.py 所在的目錄
+# os.path.join 則會組合路徑，確保跨平台兼容
+# 請確認 'NotoSansCJKtc-Regular.ttf' 與您實際下載並上傳到 'fonts' 資料夾中的檔案名稱完全一致！
+font_file_name = 'NotoSansCJKtc-Regular.ttf'
+font_path = os.path.join(os.path.dirname(__file__), 'fonts', font_file_name)
+
+# 2. 檢查字體檔案是否存在，並添加到 Matplotlib 的字體管理器中
+# 推薦的字體名稱 'Noto Sans CJK TC' 已經透過您的預覽確認過
+font_name_for_matplotlib = 'Noto Sans CJK TC'
+
+if os.path.exists(font_path):
+    try:
+        fm.fontManager.addfont(font_path)
+        rcParams['font.family'] = [font_name_for_matplotlib, 'sans-serif']
+        st.success(f"Successfully loaded font: {font_name_for_matplotlib}")
+    except Exception as e:
+        st.error(f"Error loading font from {font_path}: {e}")
+        st.warning("Using fallback font as font loading failed.")
+        rcParams['font.family'] = ['Arial Unicode MS', 'sans-serif'] # 回退到通用字體
+else:
+    st.warning(f"Warning: Chinese font file '{font_file_name}' not found at {font_path}. Using fallback font.")
+    rcParams['font.family'] = ['Arial Unicode MS', 'sans-serif'] # 回退到通用字體
+
 # 確保負號 '-' 正常顯示，避免中文環境下顯示為方塊
 rcParams['axes.unicode_minus'] = False
 
@@ -80,9 +104,6 @@ def plot_data(data, selected_items, selected_column, separate_by_year, combine_p
             plt.xlabel("月份", fontsize=12)
             plt.xticks(range(1, 13))  # 確保 X 軸只顯示 1 到 12 月
         else:  # 否則繪製整體趨勢
-            # 為了在同一圖中繪製不同項目，需要為每個項目單獨準備數據
-            # 這裡需要遍歷 selected_items，而不是直接用 data
-            # 這是原程式碼中的一個小邏輯調整，以確保正確地為每個項目生成圖例
             full_date_data = pd.DataFrame()
             for item in selected_items:
                 item_data_temp = data[data['項目'] == item].copy()
@@ -100,14 +121,12 @@ def plot_data(data, selected_items, selected_column, separate_by_year, combine_p
         ax.yaxis.set_major_formatter(ScalarFormatter())  # 強制使用完整數字格式
         ax.get_yaxis().get_offset_text().set_visible(False)  # 隱藏 Offset Text
 
-        # 將圖例移到圖外下方，並不顯示「項目」
-        # 如果是按年月總體趨勢並combine_plots，hue='項目' 會自動生成圖例
-        # loc='upper center' 和 bbox_to_anchor 已經能夠達到下方位置的效果
+        # 將圖例移到圖外下方
         if separate_by_year: # 如果是按年度分開繪製 (此時圖例是年份)
              plt.legend(
-                loc="upper center",  # 放置在圖形下方
-                bbox_to_anchor=(0.5, -0.2),  # 調整位置（水平置中，垂直向下）
-                ncol=5,  # 每行顯示 5 個圖例
+                loc="upper center",
+                bbox_to_anchor=(0.5, -0.2),
+                ncol=5,
                 fontsize=10
             )
         else: # 如果是整體趨勢 (此時圖例是項目)
@@ -115,7 +134,7 @@ def plot_data(data, selected_items, selected_column, separate_by_year, combine_p
                 loc="upper center",
                 bbox_to_anchor=(0.5, -0.2),
                 ncol=5,
-                title="項目", # 添加圖例標題
+                title="項目",
                 fontsize=10
             )
 
@@ -144,8 +163,6 @@ def plot_data(data, selected_items, selected_column, separate_by_year, combine_p
                 sns.lineplot(x='年月_label', y=selected_column, data=item_data, marker='o', label=item)
                 plt.xlabel("年月", fontsize=12)
                 plt.xticks(rotation=45)
-                # 每個項目單獨繪圖時，如果沒有按年份分開，通常不需要圖例，因為標題已經說明
-                # 或者只顯示一個項目名稱的圖例
                 plt.legend(
                     loc="upper center",
                     bbox_to_anchor=(0.5, -0.2),
@@ -186,7 +203,6 @@ def main():
         # 讓使用者選擇分析的「項目」
         item_options = data['項目'].unique().tolist()  # 動態取得項目選項
         selected_items = st.multiselect("請選擇要分析的項目：", item_options, default=[item_options[0]] if item_options else [])
-        # 增加一個判斷，避免 item_options 為空時取 default[0] 報錯
 
         # 讓使用者選擇分析的列欄位（如 C1、D1 等）
         column_options = data.columns[2:].tolist()  # 動態取得 C1、D1、E1...等欄位名稱
@@ -199,7 +215,7 @@ def main():
         combine_plots = st.checkbox("將多個項目畫在同一張圖？", value=True)
 
         # 資料處理
-        if selected_items and selected_column: # 確保有選擇項目和欄位才進行處理
+        if selected_items and selected_column:
             filtered_data = process_data(data, selected_items, selected_column)
 
             # 如果有資料，顯示圖表
