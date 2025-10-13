@@ -5,15 +5,8 @@ import streamlit as st
 from matplotlib.ticker import ScalarFormatter  # 用於格式化數字
 from matplotlib import rcParams  # 用於設置全局字型
 
-# --- 修改後的字體設置 ---
 # 設置 Matplotlib 字型為支持中文的字型
-# 使用 matplotlib-chinese 庫自動配置中文字體
-import matplotlib_chinese # <-- 新增這一行
-# matplotlib_chinese 會自動配置 rcParams['font.family']
-# 解決在使用中文字體時，負號可能顯示為方塊的問題
-rcParams['axes.unicode_minus'] = False
-# --- 字體設置結束 ---
-
+rcParams['font.family'] = ['Microsoft YaHei']  # 替換為您系統上支持的中文字型，例如 SimHei
 
 # 自訂 CSS 讓頁面靠左對齊並縮小段落間距
 def set_page_style():
@@ -80,7 +73,7 @@ def plot_data(data, selected_items, selected_column, separate_by_year, combine_p
                 # 篩選出對應項目的數據
                 item_data = data[data['項目'] == item]
                 item_data['年月'] = item_data['年份'] + item_data['月份'].astype(str).str.zfill(2)  # 合併年份和月份
-                sns.lineplot(x='年月', y=selected_column, data=item_data, marker='o', label=item)  # 正確傳遞項目名稱作為圖例標籤
+                sns.lineplot(x='年月', y=selected_column, data=item_data, marker='o', label=item)  # 傳遞項目的名稱
             plt.xlabel("年月", fontsize=12)
             plt.xticks(rotation=45)
 
@@ -91,13 +84,12 @@ def plot_data(data, selected_items, selected_column, separate_by_year, combine_p
         ax.yaxis.set_major_formatter(ScalarFormatter())  # 強制使用完整數字格式
         ax.get_yaxis().get_offset_text().set_visible(False)  # 隱藏 Offset Text
 
-        # 將圖例移到圖外下方
+        # 將圖例移到圖外下方，並不顯示「項目」
         plt.legend(
             loc="upper center",  # 放置在圖形下方
             bbox_to_anchor=(0.5, -0.2),  # 調整位置（水平置中，垂直向下）
             ncol=5,  # 每行顯示 5 個圖例
-            fontsize=10,
-            title="項目"  # 圖例標題
+            fontsize=10
         )
 
         plt.grid(True)
@@ -114,7 +106,7 @@ def plot_data(data, selected_items, selected_column, separate_by_year, combine_p
                 plt.xticks(range(1, 13))
             else:  # 整體趨勢
                 item_data['年月'] = item_data['年份'] + item_data['月份'].astype(str).str.zfill(2)
-                sns.lineplot(x='年月', y=selected_column, data=item_data, marker='o')
+                sns.lineplot(x='年月', y=selected_column, data=item_data, marker='o', label=item)  # 傳遞項目的名稱
                 plt.xlabel("年月", fontsize=12)
                 plt.xticks(rotation=45)
 
@@ -135,10 +127,10 @@ def main():
 
     st.title("數據分析工具")
     st.write("1. 上傳一個 Excel 檔案，並選擇一個或多個項目和欄位，分析其在不同月份或年度的趨勢變化")
-    st.write("2. 欄位規則：A1請填入文字:年月；，B1請填入文字:項目；C欄以後請自行定義名稱")
-    st.write("3. A列為年月，A2之後欄位請填入文字，例如114年5月，請填入文字:11405")
-    st.write("4. B列為分析項目，B2之後欄位請填入文字，例如：醫療收入或人事費用...")
-    st.write("5. C2往右及C2往下欄位格式為數值資料")
+    st.write("2. 欄位規則：A欄為年月，A1請填入文字:年月；B欄為分析項目，B1請填入文字:分析項目；C欄以後請自行定義名稱")
+    st.write("3. A欄為年月，A1之後欄位請填入文字，例如114年5月，請填入文字:11405")
+    st.write("4. B欄為分析項目，A2之後欄位請填入文字，例如：醫療收入或人事費用...")
+    st.write("5. C2往右及往下儲存格為數值資料")
 
     # 讓使用者上傳 Excel 檔案
     uploaded_file = st.file_uploader("上傳 Excel 檔案", type=["xlsx"], label_visibility="hidden")
