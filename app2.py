@@ -4,9 +4,12 @@ import seaborn as sns
 import streamlit as st
 from matplotlib.ticker import ScalarFormatter  # 用於格式化數字
 from matplotlib import rcParams  # 用於設置全局字型
+import matplotlib_chinese # <-- 新增這一行，用於自動配置中文字體
 
-# 設置 Matplotlib 字型為支持中文的字型
-rcParams['font.family'] = ['Microsoft YaHei']  # 替換為您系統上支持的中文字型，例如 SimHei
+# 設置 Matplotlib 字型為支持中文的字型 (透過 matplotlib_chinese 自動處理)
+# 解決在使用中文字體時，負號可能顯示為方塊的問題
+rcParams['axes.unicode_minus'] = False
+
 
 # 自訂 CSS 讓頁面靠左對齊並縮小段落間距
 def set_page_style():
